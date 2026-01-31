@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>우리 가족 사이트 - 완전판</title>
+    <title>우리 가족 사이트 - Firebase 버전</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,7 +13,7 @@
             <div id="auth-container">
                 <div class="auth-section">
                     <h1>🏠 우리 가족 사이트</h1>
-                    <p style="margin-bottom: 30px;">채팅, 게임, 사진 공유, 일정 관리가 가능한 완전판!</p>
+                    <p style="margin-bottom: 30px;">실시간 멀티플레이 지원! 🔥</p>
                     
                     <div class="auth-form">
                         <h2>가족 입장</h2>
@@ -21,7 +21,7 @@
                         <input type="text" id="familyCode" placeholder="가족 코드 입력 (예: kim2024)">
                         <button onclick="login()">입장하기</button>
                         <p style="margin-top: 15px; font-size: 14px; color: #666;">
-                            * 같은 가족 코드를 사용하면 함께 채팅하고 게임할 수 있어요!
+                            * 같은 가족 코드를 사용하면 여러 기기에서 함께 게임할 수 있어요!
                         </p>
                     </div>
                 </div>
@@ -48,7 +48,7 @@
 
                 <!-- 채팅 섹션 -->
                 <div id="chat-section" class="section active">
-                    <h2>💬 가족 채팅</h2>
+                    <h2>💬 가족 채팅 (실시간)</h2>
                     <div class="chat-container">
                         <div id="chatMessages" class="chat-messages"></div>
                         <div class="chat-input">
@@ -60,7 +60,7 @@
                     </div>
                 </div>
 
-                <!-- 다른 섹션들은 family-script.js에서 동적으로 생성 -->
+                <!-- 다른 섹션들은 script에서 동적으로 생성 -->
             </div>
         </div>
 
@@ -81,6 +81,40 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Firebase 설정 (여기에 Firebase에서 복사한 설정을 붙여넣으세요!)
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, get, push, onValue, remove, off } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // TODO: Firebase에서 복사한 설정으로 교체하세요!
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com/",
+            projectId: "YOUR_PROJECT",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Firebase 초기화
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // 전역으로 사용할 수 있도록 설정
+        window.database = database;
+        window.firebaseRef = ref;
+        window.firebaseSet = set;
+        window.firebaseGet = get;
+        window.firebasePush = push;
+        window.firebaseOnValue = onValue;
+        window.firebaseRemove = remove;
+        window.firebaseOff = off;
+
+        console.log('🔥 Firebase 연결 완료!');
+    </script>
+
+    <script src="firebase-script.js"></script>
 </body>
 </html>
