@@ -3,8 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>우리 가족 사이트 - Firebase 버전</title>
-    <link rel="stylesheet" href="style.css">
+    <title>우리 가족 사이트 - Firebase 완전판</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .main-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #e9ecef;
+        }
+
+        .nav-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .section {
+            display: none;
+            padding: 20px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* 로그인 스타일 */
+        .auth-section {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .auth-form {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .auth-form button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* 채팅 스타일 */
+        .chat-container {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .message.own {
+            background: #667eea;
+            color: white;
+            margin-left: 20%;
+        }
+
+        .message .username {
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 8px;
+        }
+
+        .message.own .username {
+            color: #fff;
+        }
+
+        .message img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 5px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .file-btn, .chat-input button {
+            padding: 10px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .file-btn {
+            background: #28a745;
+        }
+
+        /* 게임 스타일 */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .game-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .game-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .play-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .play-btn:hover {
+            background: #5a6fd8;
+        }
+
+        /* 알림 시스템 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification-content {
+            background: #667eea;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.success .notification-content {
+            background: #28a745;
+        }
+
+        .notification.error .notification-content {
+            background: #dc3545;
+        }
+
+        /* 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        /* 애니메이션 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chat-container {
+                height: 400px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -13,7 +329,7 @@
             <div id="auth-container">
                 <div class="auth-section">
                     <h1>🏠 우리 가족 사이트</h1>
-                    <p style="margin-bottom: 30px;">실시간 멀티플레이 지원! 🔥</p>
+                    <p style="margin-bottom: 30px;">🔥 Firebase 실시간 멀티플레이 지원!</p>
                     
                     <div class="auth-form">
                         <h2>가족 입장</h2>
@@ -30,37 +346,68 @@
             <!-- 메인 화면 -->
             <div id="main-container" class="hidden">
                 <header>
-                    <h1>🏠 우리 가족</h1>
+                    <h1>🔥 우리 가족 (Firebase 연결됨)</h1>
                     <div class="user-info">
                         <span id="welcomeMessage"></span>
-                        <span id="onlineCount">온라인: 1명</span>
+                        <span id="onlineCount">실시간 연결</span>
                         <button id="logoutBtn" onclick="logout()">로그아웃</button>
                     </div>
                 </header>
 
                 <div class="nav">
-                    <button class="nav-btn active" onclick="showSection('chat')">💬 채팅</button>
+                    <button class="nav-btn active" onclick="showSection('chat')">💬 실시간 채팅</button>
                     <button class="nav-btn" onclick="showSection('games')">🎮 게임</button>
-                    <button class="nav-btn" onclick="showSection('photos')">📷 사진</button>
-                    <button class="nav-btn" onclick="showSection('board')">🎲 보드게임</button>
-                    <button class="nav-btn" onclick="showSection('calendar')">📅 일정</button>
+                    <button class="nav-btn" onclick="showSection('board')">🎲 멀티플레이</button>
                 </div>
 
                 <!-- 채팅 섹션 -->
                 <div id="chat-section" class="section active">
-                    <h2>💬 가족 채팅 (실시간)</h2>
+                    <h2>💬 가족 채팅 (실시간 Firebase)</h2>
                     <div class="chat-container">
                         <div id="chatMessages" class="chat-messages"></div>
                         <div class="chat-input">
                             <input type="text" id="messageInput" placeholder="메시지를 입력하세요..." onkeypress="handleEnter(event)">
                             <label for="imageInput" class="file-btn">📷</label>
-                            <input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)">
+                            <input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)" style="display: none;">
                             <button onclick="sendMessage()">전송</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- 다른 섹션들은 script에서 동적으로 생성 -->
+                <!-- 게임 섹션 -->
+                <div id="games-section" class="section">
+                    <h2>🎮 가족 게임</h2>
+                    <div class="games-grid">
+                        <div class="game-card">
+                            <div class="icon">🧠</div>
+                            <h3>가족 퀴즈</h3>
+                            <p>가족에 대한 재미있는 퀴즈를 풀어보세요!</p>
+                            <button class="play-btn" onclick="startQuiz()">게임 시작</button>
+                        </div>
+                        <div class="game-card">
+                            <div class="icon">🎲</div>
+                            <h3>숫자 맞추기</h3>
+                            <p>1-100 사이의 숫자를 맞춰보세요!</p>
+                            <button class="play-btn" onclick="startNumberGame()">게임 시작</button>
+                        </div>
+                        <div class="game-card">
+                            <div class="icon">🎯</div>
+                            <h3>빙고 게임</h3>
+                            <p>가족과 함께 빙고를 완성해보세요!</p>
+                            <button class="play-btn" onclick="startBingoGame()">게임 시작</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 보드게임 섹션 -->
+                <div id="board-section" class="section">
+                    <h2>🎲 실시간 멀티플레이 게임</h2>
+                    <div style="text-align: center; padding: 40px;">
+                        <p style="font-size: 18px; margin-bottom: 20px;">🔥 Firebase로 실시간 멀티플레이 지원!</p>
+                        <button class="play-btn" onclick="createTestRoom()">테스트 게임방 만들기</button>
+                        <div id="roomStatus" style="margin-top: 20px;"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -68,11 +415,11 @@
         <div id="notification" class="notification hidden">
             <div class="notification-content">
                 <span id="notificationText"></span>
-                <button onclick="closeNotification()">×</button>
+                <button onclick="closeNotification()" style="background: none; border: none; color: inherit; font-size: 18px; cursor: pointer;">×</button>
             </div>
         </div>
 
-        <!-- 모달들 -->
+        <!-- 모달 -->
         <div id="gameModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">&times;</span>
@@ -83,19 +430,18 @@
 
     <!-- Firebase SDK -->
     <script type="module">
-        // Firebase 설정 (여기에 Firebase에서 복사한 설정을 붙여넣으세요!)
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getDatabase, ref, set, get, push, onValue, remove, off } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-        // TODO: Firebase에서 복사한 설정으로 교체하세요!
+        // Firebase 설정
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com/",
-            projectId: "YOUR_PROJECT",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyBedCzXlkTw5pjWF2b_36-fpvmctgL7ACQ",
+            authDomain: "family-site-3ea40.firebaseapp.com",
+            databaseURL: "https://family-site-3ea40-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "family-site-3ea40",
+            storageBucket: "family-site-3ea40.firebasestorage.app",
+            messagingSenderId: "626003406875",
+            appId: "1:626003406875:web:673533f9fc4f8807a948be"
         };
 
         // Firebase 초기화
@@ -113,8 +459,353 @@
         window.firebaseOff = off;
 
         console.log('🔥 Firebase 연결 완료!');
+        
+        // 연결 상태 표시
+        setTimeout(() => {
+            showNotification('🔥 Firebase 실시간 연결 완료!', 'success');
+        }, 1000);
     </script>
 
-    <script src="firebase-script.js"></script>
+    <script>
+        // 전역 변수
+        let currentUser = null;
+        let messagesListener = null;
+
+        // 로그인 함수
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const familyCode = document.getElementById('familyCode').value.trim();
+            
+            if (!username || !familyCode) {
+                showNotification('사용자명과 가족 코드를 입력해주세요!', 'error');
+                return;
+            }
+            
+            currentUser = { 
+                username, 
+                familyCode, 
+                joinTime: new Date().toISOString(),
+                id: Date.now() + Math.random()
+            };
+            
+            localStorage.setItem('familySiteUser', JSON.stringify(currentUser));
+            
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('main-container').classList.remove('hidden');
+            document.getElementById('welcomeMessage').textContent = `안녕하세요, ${username}님!`;
+            
+            // Firebase 실시간 리스너 시작
+            startRealtimeListeners();
+            
+            addSystemMessage(`${username}님이 입장하셨습니다! 👋`);
+            showNotification(`${username}님, Firebase 실시간 연결 완료! 🔥`, 'success');
+        }
+
+        // 로그아웃 함수
+        function logout() {
+            if (currentUser) {
+                addSystemMessage(`${currentUser.username}님이 퇴장하셨습니다! 👋`);
+                stopRealtimeListeners();
+            }
+            
+            currentUser = null;
+            localStorage.removeItem('familySiteUser');
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('main-container').classList.add('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('familyCode').value = '';
+        }
+
+        // Firebase 실시간 리스너 시작
+        function startRealtimeListeners() {
+            if (!window.database || !currentUser) return;
+            
+            // 채팅 메시지 실시간 리스너
+            const messagesRef = window.firebaseRef(window.database, `messages/${currentUser.familyCode}`);
+            messagesListener = window.firebaseOnValue(messagesRef, (snapshot) => {
+                const data = snapshot.val();
+                const chatMessages = document.getElementById('chatMessages');
+                
+                if (data) {
+                    const messages = Object.values(data).sort((a, b) => a.timestamp - b.timestamp);
+                    chatMessages.innerHTML = '';
+                    
+                    messages.slice(-50).forEach(messageData => {
+                        displayMessage(messageData);
+                    });
+                } else {
+                    // 초기 메시지
+                    chatMessages.innerHTML = `
+                        <div class="message">
+                            <span class="username">🔥 Firebase:</span>
+                            <span>실시간 가족 채팅방에 오신 것을 환영합니다! 🎉</span>
+                            <span style="float: right; font-size: 12px; color: #666;">${new Date().toLocaleTimeString()}</span>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // Firebase 실시간 리스너 정리
+        function stopRealtimeListeners() {
+            if (messagesListener && window.database && currentUser) {
+                window.firebaseOff(window.firebaseRef(window.database, `messages/${currentUser.familyCode}`), 'value', messagesListener);
+            }
+        }
+
+        // 섹션 전환
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(`${sectionName}-section`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 메시지 전송
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message || !currentUser || !window.database) return;
+            
+            const messageData = {
+                username: currentUser.username,
+                message: message,
+                timestamp: Date.now(),
+                familyCode: currentUser.familyCode,
+                type: 'text',
+                id: Date.now() + Math.random()
+            };
+            
+            // Firebase에 메시지 저장 (실시간 동기화)
+            const messagesRef = window.firebaseRef(window.database, `messages/${currentUser.familyCode}`);
+            window.firebasePush(messagesRef, messageData);
+            
+            messageInput.value = '';
+        }
+
+        // 메시지 표시
+        function displayMessage(messageData) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            if (messageData.username === currentUser?.username) {
+                messageDiv.classList.add('own');
+            }
+            
+            const timestamp = new Date(messageData.timestamp).toLocaleTimeString('ko-KR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            let content = '';
+            if (messageData.type === 'image') {
+                content = `<img src="${messageData.message}" alt="업로드된 이미지" onclick="openImageModal('${messageData.message}')">`;
+            } else {
+                content = messageData.message;
+            }
+            
+            messageDiv.innerHTML = `
+                <span class="username">${messageData.username}:</span>
+                <div>${content}</div>
+                <span style="float: right; font-size: 12px; color: ${messageData.username === currentUser?.username ? '#ddd' : '#666'};">${timestamp}</span>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 시스템 메시지 추가
+        function addSystemMessage(message) {
+            if (!currentUser || !window.database) return;
+            
+            const messageData = {
+                username: '🔥 Firebase',
+                message: message,
+                timestamp: Date.now(),
+                familyCode: currentUser.familyCode,
+                type: 'system',
+                id: Date.now() + Math.random()
+            };
+            
+            const messagesRef = window.firebaseRef(window.database, `messages/${currentUser.familyCode}`);
+            window.firebasePush(messagesRef, messageData);
+        }
+
+        // Enter 키 처리
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // 이미지 업로드
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file || !currentUser || !window.database) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const messageData = {
+                    username: currentUser.username,
+                    message: e.target.result,
+                    timestamp: Date.now(),
+                    familyCode: currentUser.familyCode,
+                    type: 'image',
+                    id: Date.now() + Math.random()
+                };
+                
+                const messagesRef = window.firebaseRef(window.database, `messages/${currentUser.familyCode}`);
+                window.firebasePush(messagesRef, messageData);
+            };
+            
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        // 게임들
+        function startQuiz() {
+            const questions = [
+                { q: "우리 가족의 가장 좋아하는 음식은?", a: ["피자", "치킨", "한식", "중식"] },
+                { q: "가족 여행으로 가고 싶은 곳은?", a: ["바다", "산", "도시", "해외"] }
+            ];
+            
+            const randomQ = questions[Math.floor(Math.random() * questions.length)];
+            const answer = prompt(`${randomQ.q}\n\n선택지: ${randomQ.a.join(', ')}`);
+            
+            if (answer) {
+                addSystemMessage(`🧠 ${currentUser.username}님의 퀴즈 답변: "${answer}" - 좋은 답변이네요! 🎉`);
+            }
+        }
+
+        function startNumberGame() {
+            const targetNumber = Math.floor(Math.random() * 100) + 1;
+            let attempts = 0;
+            let guess;
+            
+            addSystemMessage(`🎲 ${currentUser.username}님이 숫자 맞추기 게임을 시작했습니다! (1-100)`);
+            
+            do {
+                guess = parseInt(prompt(`1-100 사이의 숫자를 맞춰보세요! (시도: ${attempts + 1})`));
+                attempts++;
+                
+                if (guess < targetNumber) {
+                    alert("더 큰 숫자입니다!");
+                } else if (guess > targetNumber) {
+                    alert("더 작은 숫자입니다!");
+                } else {
+                    addSystemMessage(`🎉 ${currentUser.username}님이 ${targetNumber}을(를) ${attempts}번 만에 맞췄습니다!`);
+                    break;
+                }
+            } while (attempts < 10 && guess !== targetNumber);
+            
+            if (guess !== targetNumber) {
+                addSystemMessage(`😅 ${currentUser.username}님, 아쉽네요! 정답은 ${targetNumber}이었습니다.`);
+            }
+        }
+
+        function startBingoGame() {
+            showGameModal(`
+                <h3>🎯 빙고 게임</h3>
+                <p>Firebase 실시간 멀티플레이 빙고 게임 준비 중!</p>
+                <button class="play-btn" onclick="closeModal()">닫기</button>
+            `);
+        }
+
+        function createTestRoom() {
+            if (!currentUser || !window.database) {
+                showNotification('먼저 로그인해주세요!', 'error');
+                return;
+            }
+            
+            const roomData = {
+                name: `${currentUser.username}의 게임방`,
+                host: currentUser.username,
+                players: [currentUser],
+                familyCode: currentUser.familyCode,
+                createdAt: Date.now(),
+                status: 'waiting'
+            };
+            
+            const roomRef = window.firebaseRef(window.database, `gameRooms/${currentUser.familyCode}/${Date.now()}`);
+            window.firebaseSet(roomRef, roomData);
+            
+            document.getElementById('roomStatus').innerHTML = `
+                <div style="background: #d4edda; padding: 15px; border-radius: 8px; color: #155724;">
+                    ✅ 게임방 "${roomData.name}"이 생성되었습니다!<br>
+                    다른 기기에서 같은 가족 코드로 접속하면 이 방을 볼 수 있습니다.
+                </div>
+            `;
+            
+            addSystemMessage(`🎲 새 게임방 "${roomData.name}"이 생성되었습니다!`);
+            showNotification('게임방이 생성되었습니다!', 'success');
+        }
+
+        // 알림 시스템
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notification.className = `notification ${type}`;
+            notificationText.textContent = message;
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 5000);
+        }
+
+        function closeNotification() {
+            document.getElementById('notification').classList.add('hidden');
+        }
+
+        // 모달 관련
+        function showGameModal(content) {
+            const modal = document.getElementById('gameModal');
+            const gameContent = document.getElementById('gameContent');
+            gameContent.innerHTML = content;
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('gameModal');
+            modal.classList.remove('show');
+        }
+
+        function openImageModal(imageSrc) {
+            showGameModal(`
+                <h3>이미지 보기</h3>
+                <img src="${imageSrc}" style="max-width: 100%; max-height: 70vh; border-radius: 8px;">
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="play-btn" onclick="closeModal()">닫기</button>
+                </div>
+            `);
+        }
+
+        // 자동 로그인 확인
+        window.onload = function() {
+            const savedUser = localStorage.getItem('familySiteUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('main-container').classList.remove('hidden');
+                document.getElementById('welcomeMessage').textContent = `안녕하세요, ${currentUser.username}님!`;
+                
+                startRealtimeListeners();
+                showNotification('Firebase 자동 로그인 완료! 🔥', 'success');
+            }
+        };
+
+        // 페이지 종료 시 정리
+        window.addEventListener('beforeunload', function() {
+            stopRealtimeListeners();
+        });
+    </script>
 </body>
 </html>
