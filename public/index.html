@@ -675,7 +675,7 @@
                 username, 
                 familyCode, 
                 joinTime: new Date().toISOString(),
-                id: Date.now() + Math.random()
+                id: Date.now() + '_' + Math.floor(Math.random() * 10000)
             };
             
             localStorage.setItem('familySiteUser', JSON.stringify(currentUser));
@@ -818,7 +818,7 @@
                 timestamp: Date.now(),
                 familyCode: currentUser.familyCode,
                 type: 'text',
-                id: Date.now() + Math.random()
+                id: Date.now() + '_' + Math.floor(Math.random() * 10000)
             };
             
             // Firebase에 메시지 저장 (실시간 동기화)
@@ -868,7 +868,7 @@
                 timestamp: Date.now(),
                 familyCode: currentUser.familyCode,
                 type: 'system',
-                id: Date.now() + Math.random()
+                id: Date.now() + '_' + Math.floor(Math.random() * 10000)
             };
             
             // Firebase에 시스템 메시지 저장
@@ -896,7 +896,7 @@
                     timestamp: Date.now(),
                     familyCode: currentUser.familyCode,
                     type: 'image',
-                    id: Date.now() + Math.random()
+                    id: Date.now() + '_' + Math.floor(Math.random() * 10000)
                 };
                 
                 // Firebase에 이미지 메시지 저장
@@ -925,7 +925,7 @@
                 return;
             }
             
-            const roomId = Date.now() + Math.random();
+            const roomId = Date.now() + '_' + Math.floor(Math.random() * 10000);
             const newRoom = {
                 id: roomId,
                 name: roomName,
@@ -1297,7 +1297,7 @@
                     timestamp: Date.now(),
                     familyCode: currentUser.familyCode,
                     type: 'image',
-                    id: Date.now() + Math.random()
+                    id: Date.now() + '_' + Math.floor(Math.random() * 10000)
                 };
                 
                 const messagesRef = window.firebaseRef(window.database, `messages/${currentUser.familyCode}`);
@@ -1420,7 +1420,7 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const photoData = {
-                        id: Date.now() + Math.random(),
+                        id: Date.now() + '_' + Math.floor(Math.random() * 10000),
                         imageData: e.target.result,
                         uploader: currentUser.username,
                         timestamp: Date.now(),
@@ -1556,7 +1556,7 @@
             }
             
             const eventData = {
-                id: Date.now() + Math.random(),
+                id: Date.now() + '_' + Math.floor(Math.random() * 10000),
                 title: title,
                 date: date,
                 time: time || '',
