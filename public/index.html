@@ -3,138 +3,587 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>우리 가족 사이트</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="/socket.io/socket.io.js"></script>
+    <title>우리 가족 사이트 - 완전판</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .main-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #e9ecef;
+        }
+
+        .nav-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .section {
+            display: none;
+            padding: 20px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* 로그인 스타일 */
+        .auth-section {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .auth-form {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .auth-form button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* 채팅 스타일 */
+        .chat-container {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .message.own {
+            background: #667eea;
+            color: white;
+            margin-left: 20%;
+        }
+
+        .message .username {
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 8px;
+        }
+
+        .message.own .username {
+            color: #fff;
+        }
+
+        .message .timestamp {
+            font-size: 12px;
+            color: #666;
+            float: right;
+        }
+
+        .message.own .timestamp {
+            color: #ddd;
+        }
+
+        .message img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 5px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .chat-input input[type="file"] {
+            display: none;
+        }
+
+        .file-btn, .chat-input button {
+            padding: 10px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .file-btn {
+            background: #28a745;
+        }
+
+        /* 게임 스타일 */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .game-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .game-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .play-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .play-btn:hover {
+            background: #5a6fd8;
+        }
+
+        /* 부루마블 게임 스타일 */
+        .board-game {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+            background: #333;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .board-cell {
+            background: #fff;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            border-radius: 4px;
+        }
+
+        .board-cell.corner {
+            background: #ffd700;
+            font-weight: bold;
+        }
+
+        .board-cell.property {
+            background: #87ceeb;
+        }
+
+        .board-cell.special {
+            background: #ffa500;
+        }
+
+        .player {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .player.player1 { background: #ff4757; }
+        .player.player2 { background: #2ed573; }
+        .player.player3 { background: #3742fa; }
+        .player.player4 { background: #ffa502; }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .dice {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 10px;
+        }
+
+        .game-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .player-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .current-player {
+            background: #667eea;
+            color: white;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #logoutBtn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* 애니메이션 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .bounce {
+            animation: bounce 1s;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chat-container {
+                height: 400px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div id="app">
-        <!-- 로그인/회원가입 화면 -->
-        <div id="auth-container" class="container">
-            <div class="auth-box">
-                <h1>🏠 우리 가족 사이트</h1>
-                
-                <div id="login-form" class="form-container">
-                    <h2>로그인</h2>
-                    <form id="loginForm">
-                        <input type="email" id="loginEmail" placeholder="이메일" required>
-                        <input type="password" id="loginPassword" placeholder="비밀번호" required>
-                        <button type="submit">로그인</button>
-                    </form>
-                    <p>계정이 없으신가요? <a href="#" id="showRegister">회원가입</a></p>
-                </div>
-
-                <div id="register-form" class="form-container hidden">
-                    <h2>회원가입</h2>
-                    <form id="registerForm">
-                        <input type="text" id="registerUsername" placeholder="사용자명" required>
-                        <input type="email" id="registerEmail" placeholder="이메일" required>
-                        <input type="password" id="registerPassword" placeholder="비밀번호" required>
-                        <input type="text" id="familyCode" placeholder="가족 코드" required>
-                        <button type="submit">회원가입</button>
-                    </form>
-                    <p>이미 계정이 있으신가요? <a href="#" id="showLogin">로그인</a></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- 메인 화면 -->
-        <div id="main-container" class="container hidden">
-            <header>
-                <h1>🏠 우리 가족</h1>
-                <div class="user-info">
-                    <span id="welcomeMessage"></span>
-                    <button id="logoutBtn">로그아웃</button>
-                </div>
-            </header>
-
-            <nav class="main-nav">
-                <button class="nav-btn active" data-section="chat">💬 채팅</button>
-                <button class="nav-btn" data-section="games">🎮 게임</button>
-                <button class="nav-btn" data-section="photos">📷 사진</button>
-                <button class="nav-btn" data-section="calendar">📅 일정</button>
-            </nav>
-
-            <!-- 채팅 섹션 -->
-            <div id="chat-section" class="section active">
-                <div class="chat-rooms">
-                    <h3>채팅방</h3>
-                    <div class="room-list">
-                        <button class="room-btn active" data-room="family">👨‍👩‍👧‍👦 가족 채팅</button>
-                        <button class="room-btn" data-room="parents">👫 부모님</button>
-                        <button class="room-btn" data-room="kids">👶 아이들</button>
-                    </div>
-                </div>
-                
-                <div class="chat-container">
-                    <div id="chatMessages" class="chat-messages"></div>
-                    <div class="chat-input">
-                        <input type="text" id="messageInput" placeholder="메시지를 입력하세요...">
-                        <button id="sendBtn">전송</button>
+    <div class="container">
+        <div class="main-container">
+            <!-- 로그인 화면 -->
+            <div id="auth-container">
+                <div class="auth-section">
+                    <h1>🏠 우리 가족 사이트</h1>
+                    <p style="margin-bottom: 30px;">채팅, 게임, 사진 공유가 가능한 완전판!</p>
+                    
+                    <div class="auth-form">
+                        <h2>가족 입장</h2>
+                        <input type="text" id="username" placeholder="사용자명 입력 (예: 엄마, 아빠, 딸, 아들)">
+                        <input type="text" id="familyCode" placeholder="가족 코드 입력 (예: kim2024)">
+                        <button onclick="login()">입장하기</button>
+                        <p style="margin-top: 15px; font-size: 14px; color: #666;">
+                            * 같은 가족 코드를 사용하면 함께 채팅하고 게임할 수 있어요!
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <!-- 게임 섹션 -->
-            <div id="games-section" class="section">
-                <h2>🎮 가족 게임</h2>
-                <div class="games-grid">
-                    <div class="game-card" data-game="quiz">
-                        <h3>🧠 가족 퀴즈</h3>
-                        <p>가족에 대한 재미있는 퀴즈를 풀어보세요!</p>
-                        <button class="play-btn">게임 시작</button>
+            <!-- 메인 화면 -->
+            <div id="main-container" class="hidden">
+                <header>
+                    <h1>🏠 우리 가족</h1>
+                    <div class="user-info">
+                        <span id="welcomeMessage"></span>
+                        <span id="onlineCount">온라인: 1명</span>
+                        <button id="logoutBtn" onclick="logout()">로그아웃</button>
                     </div>
-                    <div class="game-card" data-game="memory">
-                        <h3>🃏 기억력 게임</h3>
-                        <p>카드를 뒤집어서 같은 그림을 찾아보세요!</p>
-                        <button class="play-btn">게임 시작</button>
-                    </div>
-                    <div class="game-card" data-game="drawing">
-                        <h3>🎨 그림 맞추기</h3>
-                        <p>그림을 그리고 다른 가족이 맞춰보세요!</p>
-                        <button class="play-btn">게임 시작</button>
-                    </div>
-                </div>
-            </div>
+                </header>
 
-            <!-- 사진 섹션 -->
-            <div id="photos-section" class="section">
-                <h2>📷 가족 사진</h2>
-                <div class="photo-upload">
-                    <input type="file" id="photoInput" accept="image/*" multiple>
-                    <button id="uploadBtn">사진 업로드</button>
+                <div class="nav">
+                    <button class="nav-btn active" onclick="showSection('chat')">💬 채팅</button>
+                    <button class="nav-btn" onclick="showSection('games')">🎮 게임</button>
+                    <button class="nav-btn" onclick="showSection('photos')">📷 사진</button>
+                    <button class="nav-btn" onclick="showSection('board')">🎲 보드게임</button>
                 </div>
-                <div id="photoGallery" class="photo-gallery">
-                    <!-- 사진들이 여기에 표시됩니다 -->
-                </div>
-            </div>
 
-            <!-- 일정 섹션 -->
-            <div id="calendar-section" class="section">
-                <h2>📅 가족 일정</h2>
-                <div class="calendar-container">
-                    <div class="calendar-header">
-                        <button id="prevMonth">&lt;</button>
-                        <h3 id="currentMonth"></h3>
-                        <button id="nextMonth">&gt;</button>
-                    </div>
-                    <div id="calendar" class="calendar-grid">
-                        <!-- 달력이 여기에 생성됩니다 -->
+                <!-- 채팅 섹션 -->
+                <div id="chat-section" class="section active">
+                    <h2>💬 가족 채팅</h2>
+                    <div class="chat-container">
+                        <div id="chatMessages" class="chat-messages">
+                            <div class="message">
+                                <span class="username">🤖 시스템:</span>
+                                <span>가족 채팅방에 오신 것을 환영합니다! 🎉</span>
+                                <span class="timestamp">${new Date().toLocaleTimeString()}</span>
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="messageInput" placeholder="메시지를 입력하세요..." onkeypress="handleEnter(event)">
+                            <label for="imageInput" class="file-btn">📷</label>
+                            <input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)">
+                            <button onclick="sendMessage()">전송</button>
+                        </div>
                     </div>
                 </div>
-                <div class="event-form">
-                    <h3>새 일정 추가</h3>
-                    <input type="text" id="eventTitle" placeholder="일정 제목">
-                    <input type="date" id="eventDate">
-                    <button id="addEventBtn">일정 추가</button>
+
+                <!-- 게임 섹션 -->
+                <div id="games-section" class="section">
+                    <h2>🎮 가족 게임</h2>
+                    <div class="games-grid">
+                        <div class="game-card">
+                            <div class="icon">🧠</div>
+                            <h3>가족 퀴즈</h3>
+                            <p>가족에 대한 재미있는 퀴즈를 풀어보세요!</p>
+                            <button class="play-btn" onclick="startQuiz()">게임 시작</button>
+                        </div>
+                        <div class="game-card">
+                            <div class="icon">🎲</div>
+                            <h3>숫자 맞추기</h3>
+                            <p>1-100 사이의 숫자를 맞춰보세요!</p>
+                            <button class="play-btn" onclick="startNumberGame()">게임 시작</button>
+                        </div>
+                        <div class="game-card">
+                            <div class="icon">🃏</div>
+                            <h3>기억력 게임</h3>
+                            <p>카드를 뒤집어서 같은 그림을 찾아보세요!</p>
+                            <button class="play-btn" onclick="startMemoryGame()">게임 시작</button>
+                        </div>
+                        <div class="game-card">
+                            <div class="icon">🎨</div>
+                            <h3>그림 맞추기</h3>
+                            <p>단어를 보고 그림을 그려보세요!</p>
+                            <button class="play-btn" onclick="startDrawingGame()">게임 시작</button>
+                        </div>
+                        <div class="game-card">
+                            <div class="icon">🎯</div>
+                            <h3>빙고 게임</h3>
+                            <p>가족과 함께 빙고를 완성해보세요!</p>
+                            <button class="play-btn" onclick="startBingoGame()">게임 시작</button>
+                        </div>
+                        <div class="game-card">
+                            <div class="icon">🎪</div>
+                            <h3>룰렛 게임</h3>
+                            <p>룰렛을 돌려서 재미있는 미션을 받아보세요!</p>
+                            <button class="play-btn" onclick="startRouletteGame()">게임 시작</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 사진 섹션 -->
+                <div id="photos-section" class="section">
+                    <h2>📷 가족 사진</h2>
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <input type="file" id="photoUpload" accept="image/*" multiple style="display: none;" onchange="handlePhotoUpload(event)">
+                        <button class="play-btn" onclick="document.getElementById('photoUpload').click()">📷 사진 업로드</button>
+                    </div>
+                    <div id="photoGallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                        <!-- 사진들이 여기에 표시됩니다 -->
+                    </div>
+                </div>
+
+                <!-- 보드게임 섹션 -->
+                <div id="board-section" class="section">
+                    <h2>🎲 가족 부루마블</h2>
+                    <div class="board-game">
+                        <div class="game-controls">
+                            <button class="play-btn" onclick="rollDice()" id="rollBtn">주사위 굴리기</button>
+                            <div class="dice" id="dice1">1</div>
+                            <div class="dice" id="dice2">1</div>
+                            <button class="play-btn" onclick="resetGame()">게임 리셋</button>
+                        </div>
+                        
+                        <div class="game-board" id="gameBoard">
+                            <!-- 보드 칸들이 여기에 생성됩니다 -->
+                        </div>
+                        
+                        <div class="game-info">
+                            <div id="currentPlayerInfo">현재 차례: <span id="currentPlayerName">플레이어 1</span></div>
+                            <div id="playersInfo">
+                                <!-- 플레이어 정보가 여기에 표시됩니다 -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- 게임 모달 -->
-        <div id="gameModal" class="modal hidden">
+        <div id="gameModal" class="modal">
             <div class="modal-content">
-                <span class="close">&times;</span>
+                <span class="close" onclick="closeModal()">&times;</span>
                 <div id="gameContent">
                     <!-- 게임 내용이 여기에 로드됩니다 -->
                 </div>
@@ -142,6 +591,796 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // 전역 변수
+        let currentUser = null;
+        let messages = [];
+        let photos = [];
+        let onlineUsers = [];
+        
+        // 부루마블 게임 변수
+        let boardGame = {
+            players: [
+                { name: '플레이어 1', position: 0, money: 1000, color: 'player1' },
+                { name: '플레이어 2', position: 0, money: 1000, color: 'player2' },
+                { name: '플레이어 3', position: 0, money: 1000, color: 'player3' },
+                { name: '플레이어 4', position: 0, money: 1000, color: 'player4' }
+            ],
+            currentPlayer: 0,
+            boardCells: [
+                { name: '시작', type: 'corner', color: '#ffd700' },
+                { name: '서울', type: 'property', price: 100, color: '#87ceeb' },
+                { name: '기회', type: 'special', color: '#ffa500' },
+                { name: '부산', type: 'property', price: 120, color: '#87ceeb' },
+                { name: '세금', type: 'special', color: '#ffa500' },
+                { name: '대구', type: 'property', price: 140, color: '#87ceeb' },
+                { name: '감옥', type: 'corner', color: '#ffd700' },
+                { name: '인천', type: 'property', price: 160, color: '#87ceeb' },
+                { name: '기회', type: 'special', color: '#ffa500' },
+                { name: '광주', type: 'property', price: 180, color: '#87ceeb' },
+                { name: '세금', type: 'special', color: '#ffa500' },
+                { name: '대전', type: 'property', price: 200, color: '#87ceeb' },
+                { name: '휴식', type: 'corner', color: '#ffd700' },
+                { name: '울산', type: 'property', price: 220, color: '#87ceeb' },
+                { name: '기회', type: 'special', color: '#ffa500' },
+                { name: '제주', type: 'property', price: 300, color: '#87ceeb' }
+            ]
+        };
+
+        // 로그인 함수
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const familyCode = document.getElementById('familyCode').value.trim();
+            
+            if (!username || !familyCode) {
+                alert('사용자명과 가족 코드를 입력해주세요!');
+                return;
+            }
+            
+            currentUser = { username, familyCode, joinTime: new Date() };
+            localStorage.setItem('familySiteUser', JSON.stringify(currentUser));
+            
+            // 온라인 사용자 목록에 추가
+            addOnlineUser(currentUser);
+            
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('main-container').classList.remove('hidden');
+            document.getElementById('welcomeMessage').textContent = `안녕하세요, ${username}님!`;
+            
+            loadMessages();
+            loadPhotos();
+            initBoardGame();
+            
+            // 입장 메시지 추가
+            addSystemMessage(`${username}님이 입장하셨습니다! 👋`);
+        }
+
+        // 로그아웃 함수
+        function logout() {
+            if (currentUser) {
+                addSystemMessage(`${currentUser.username}님이 퇴장하셨습니다! 👋`);
+                removeOnlineUser(currentUser);
+            }
+            
+            currentUser = null;
+            localStorage.removeItem('familySiteUser');
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('main-container').classList.add('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('familyCode').value = '';
+        }
+
+        // 온라인 사용자 관리
+        function addOnlineUser(user) {
+            const savedUsers = JSON.parse(localStorage.getItem('onlineUsers') || '[]');
+            const existingIndex = savedUsers.findIndex(u => u.username === user.username && u.familyCode === user.familyCode);
+            
+            if (existingIndex === -1) {
+                savedUsers.push(user);
+            } else {
+                savedUsers[existingIndex] = user;
+            }
+            
+            localStorage.setItem('onlineUsers', JSON.stringify(savedUsers));
+            updateOnlineCount();
+        }
+
+        function removeOnlineUser(user) {
+            const savedUsers = JSON.parse(localStorage.getItem('onlineUsers') || '[]');
+            const filteredUsers = savedUsers.filter(u => !(u.username === user.username && u.familyCode === user.familyCode));
+            localStorage.setItem('onlineUsers', JSON.stringify(filteredUsers));
+            updateOnlineCount();
+        }
+
+        function updateOnlineCount() {
+            const savedUsers = JSON.parse(localStorage.getItem('onlineUsers') || '[]');
+            const familyUsers = savedUsers.filter(u => u.familyCode === currentUser?.familyCode);
+            document.getElementById('onlineCount').textContent = `온라인: ${familyUsers.length}명`;
+        }
+
+        // 섹션 전환
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(`${sectionName}-section`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 채팅 기능
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message || !currentUser) return;
+            
+            const newMessage = {
+                username: currentUser.username,
+                message: message,
+                timestamp: new Date(),
+                familyCode: currentUser.familyCode,
+                type: 'text'
+            };
+            
+            messages.push(newMessage);
+            localStorage.setItem('familySiteMessages', JSON.stringify(messages));
+            
+            displayMessage(newMessage);
+            messageInput.value = '';
+        }
+
+        function displayMessage(messageData) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            if (messageData.username === currentUser?.username) {
+                messageDiv.classList.add('own');
+            }
+            
+            const timestamp = new Date(messageData.timestamp).toLocaleTimeString('ko-KR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            let content = '';
+            if (messageData.type === 'image') {
+                content = `<img src="${messageData.message}" alt="업로드된 이미지" onclick="openImageModal('${messageData.message}')">`;
+            } else {
+                content = messageData.message;
+            }
+            
+            messageDiv.innerHTML = `
+                <span class="username">${messageData.username}:</span>
+                <div>${content}</div>
+                <span class="timestamp">${timestamp}</span>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // 애니메이션 효과
+            messageDiv.classList.add('bounce');
+        }
+
+        function addSystemMessage(message) {
+            const systemMessage = {
+                username: '🤖 시스템',
+                message: message,
+                timestamp: new Date(),
+                familyCode: currentUser?.familyCode || 'system',
+                type: 'system'
+            };
+            
+            messages.push(systemMessage);
+            localStorage.setItem('familySiteMessages', JSON.stringify(messages));
+            displayMessage(systemMessage);
+        }
+
+        function loadMessages() {
+            const savedMessages = localStorage.getItem('familySiteMessages');
+            if (savedMessages) {
+                messages = JSON.parse(savedMessages);
+                const familyMessages = messages.filter(m => m.familyCode === currentUser.familyCode);
+                
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = '';
+                
+                familyMessages.slice(-50).forEach(displayMessage); // 최근 50개 메시지만 표시
+            }
+        }
+
+        // 이미지 업로드 처리
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageData = e.target.result;
+                
+                const newMessage = {
+                    username: currentUser.username,
+                    message: imageData,
+                    timestamp: new Date(),
+                    familyCode: currentUser.familyCode,
+                    type: 'image'
+                };
+                
+                messages.push(newMessage);
+                localStorage.setItem('familySiteMessages', JSON.stringify(messages));
+                displayMessage(newMessage);
+            };
+            
+            reader.readAsDataURL(file);
+            event.target.value = ''; // 파일 입력 초기화
+        }
+
+        // 사진 갤러리 기능
+        function handlePhotoUpload(event) {
+            const files = Array.from(event.target.files);
+            
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoData = {
+                        src: e.target.result,
+                        name: file.name,
+                        uploadTime: new Date(),
+                        uploader: currentUser.username,
+                        familyCode: currentUser.familyCode
+                    };
+                    
+                    photos.push(photoData);
+                    localStorage.setItem('familySitePhotos', JSON.stringify(photos));
+                    displayPhoto(photoData);
+                    
+                    addSystemMessage(`${currentUser.username}님이 사진을 업로드했습니다! 📷`);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            event.target.value = '';
+        }
+
+        function displayPhoto(photoData) {
+            const gallery = document.getElementById('photoGallery');
+            const photoDiv = document.createElement('div');
+            photoDiv.style.cssText = `
+                background: white;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                transition: transform 0.3s;
+            `;
+            
+            photoDiv.innerHTML = `
+                <img src="${photoData.src}" alt="${photoData.name}" 
+                     style="width: 100%; height: 150px; object-fit: cover; cursor: pointer;"
+                     onclick="openImageModal('${photoData.src}')">
+                <div style="padding: 10px;">
+                    <div style="font-size: 12px; color: #666;">${photoData.uploader}</div>
+                    <div style="font-size: 10px; color: #999;">${new Date(photoData.uploadTime).toLocaleDateString()}</div>
+                </div>
+            `;
+            
+            photoDiv.addEventListener('mouseenter', () => {
+                photoDiv.style.transform = 'translateY(-5px)';
+            });
+            
+            photoDiv.addEventListener('mouseleave', () => {
+                photoDiv.style.transform = 'translateY(0)';
+            });
+            
+            gallery.appendChild(photoDiv);
+        }
+
+        function loadPhotos() {
+            const savedPhotos = localStorage.getItem('familySitePhotos');
+            if (savedPhotos) {
+                photos = JSON.parse(savedPhotos);
+                const familyPhotos = photos.filter(p => p.familyCode === currentUser.familyCode);
+                
+                const gallery = document.getElementById('photoGallery');
+                gallery.innerHTML = '';
+                
+                familyPhotos.forEach(displayPhoto);
+            }
+        }
+
+        // 이미지 모달
+        function openImageModal(imageSrc) {
+            const modal = document.getElementById('gameModal');
+            const content = document.getElementById('gameContent');
+            
+            content.innerHTML = `
+                <h3>이미지 보기</h3>
+                <img src="${imageSrc}" style="max-width: 100%; max-height: 70vh; border-radius: 8px;">
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="play-btn" onclick="closeModal()">닫기</button>
+                </div>
+            `;
+            
+            modal.classList.add('show');
+        }
+
+        // Enter 키 처리
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // 부루마블 게임 초기화
+        function initBoardGame() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+            
+            boardGame.boardCells.forEach((cell, index) => {
+                const cellDiv = document.createElement('div');
+                cellDiv.className = `board-cell ${cell.type}`;
+                cellDiv.innerHTML = `
+                    <div style="font-weight: bold; font-size: 10px;">${cell.name}</div>
+                    ${cell.price ? `<div style="font-size: 8px;">$${cell.price}</div>` : ''}
+                `;
+                cellDiv.id = `cell-${index}`;
+                board.appendChild(cellDiv);
+            });
+            
+            updatePlayerPositions();
+            updatePlayerInfo();
+        }
+
+        function rollDice() {
+            const dice1 = Math.floor(Math.random() * 6) + 1;
+            const dice2 = Math.floor(Math.random() * 6) + 1;
+            const total = dice1 + dice2;
+            
+            document.getElementById('dice1').textContent = dice1;
+            document.getElementById('dice2').textContent = dice2;
+            
+            // 주사위 애니메이션
+            document.getElementById('dice1').classList.add('bounce');
+            document.getElementById('dice2').classList.add('bounce');
+            
+            setTimeout(() => {
+                document.getElementById('dice1').classList.remove('bounce');
+                document.getElementById('dice2').classList.remove('bounce');
+            }, 1000);
+            
+            // 플레이어 이동
+            const currentPlayer = boardGame.players[boardGame.currentPlayer];
+            currentPlayer.position = (currentPlayer.position + total) % boardGame.boardCells.length;
+            
+            updatePlayerPositions();
+            
+            // 칸 효과 처리
+            const currentCell = boardGame.boardCells[currentPlayer.position];
+            handleCellEffect(currentPlayer, currentCell);
+            
+            // 다음 플레이어로 턴 변경
+            boardGame.currentPlayer = (boardGame.currentPlayer + 1) % boardGame.players.length;
+            updatePlayerInfo();
+            
+            addSystemMessage(`🎲 ${currentPlayer.name}이(가) ${dice1}, ${dice2} (총 ${total})을 굴려서 ${currentCell.name}에 도착했습니다!`);
+        }
+
+        function updatePlayerPositions() {
+            // 모든 플레이어 제거
+            document.querySelectorAll('.player').forEach(p => p.remove());
+            
+            // 플레이어 다시 배치
+            boardGame.players.forEach((player, index) => {
+                const cell = document.getElementById(`cell-${player.position}`);
+                const playerDiv = document.createElement('div');
+                playerDiv.className = `player ${player.color}`;
+                playerDiv.textContent = index + 1;
+                playerDiv.style.left = `${(index % 2) * 25}px`;
+                playerDiv.style.top = `${Math.floor(index / 2) * 25}px`;
+                cell.appendChild(playerDiv);
+            });
+        }
+
+        function updatePlayerInfo() {
+            const playersInfo = document.getElementById('playersInfo');
+            const currentPlayerName = document.getElementById('currentPlayerName');
+            
+            currentPlayerName.textContent = boardGame.players[boardGame.currentPlayer].name;
+            
+            playersInfo.innerHTML = '';
+            boardGame.players.forEach((player, index) => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player-info';
+                if (index === boardGame.currentPlayer) {
+                    playerDiv.classList.add('current-player');
+                }
+                
+                playerDiv.innerHTML = `
+                    <span>${player.name}</span>
+                    <span>$${player.money}</span>
+                `;
+                playersInfo.appendChild(playerDiv);
+            });
+        }
+
+        function handleCellEffect(player, cell) {
+            switch (cell.type) {
+                case 'property':
+                    if (Math.random() > 0.5) {
+                        player.money -= cell.price;
+                        addSystemMessage(`💰 ${player.name}이(가) ${cell.name}을(를) 구매했습니다! (-$${cell.price})`);
+                    }
+                    break;
+                case 'special':
+                    const effect = Math.random() > 0.5 ? 100 : -50;
+                    player.money += effect;
+                    const message = effect > 0 ? `🎉 ${player.name}이(가) $${effect}을 받았습니다!` : `😅 ${player.name}이(가) $${Math.abs(effect)}을 잃었습니다!`;
+                    addSystemMessage(message);
+                    break;
+                case 'corner':
+                    player.money += 200;
+                    addSystemMessage(`🏠 ${player.name}이(가) 시작점을 지나 $200을 받았습니다!`);
+                    break;
+            }
+            
+            // 돈이 음수가 되지 않도록
+            player.money = Math.max(0, player.money);
+        }
+
+        function resetGame() {
+            boardGame.players.forEach(player => {
+                player.position = 0;
+                player.money = 1000;
+            });
+            boardGame.currentPlayer = 0;
+            
+            updatePlayerPositions();
+            updatePlayerInfo();
+            addSystemMessage('🎲 게임이 리셋되었습니다!');
+        }
+
+        // 다른 게임들
+        function startQuiz() {
+            const questions = [
+                { q: "우리 가족의 가장 좋아하는 음식은?", a: ["피자", "치킨", "한식", "중식"] },
+                { q: "가족 여행으로 가고 싶은 곳은?", a: ["바다", "산", "도시", "해외"] },
+                { q: "우리 가족의 특별한 날은?", a: ["생일", "기념일", "명절", "휴일"] },
+                { q: "가족이 함께 보고 싶은 영화 장르는?", a: ["코미디", "액션", "로맨스", "애니메이션"] }
+            ];
+            
+            const randomQ = questions[Math.floor(Math.random() * questions.length)];
+            const answer = prompt(`${randomQ.q}\n\n선택지: ${randomQ.a.join(', ')}`);
+            
+            if (answer) {
+                addSystemMessage(`🧠 ${currentUser.username}님의 퀴즈 답변: "${answer}" - 좋은 답변이네요! 🎉`);
+            }
+        }
+
+        function startNumberGame() {
+            const targetNumber = Math.floor(Math.random() * 100) + 1;
+            let attempts = 0;
+            let guess;
+            
+            addSystemMessage(`🎲 ${currentUser.username}님이 숫자 맞추기 게임을 시작했습니다! (1-100)`);
+            
+            do {
+                guess = parseInt(prompt(`1-100 사이의 숫자를 맞춰보세요! (시도: ${attempts + 1})`));
+                attempts++;
+                
+                if (guess < targetNumber) {
+                    alert("더 큰 숫자입니다!");
+                } else if (guess > targetNumber) {
+                    alert("더 작은 숫자입니다!");
+                } else {
+                    addSystemMessage(`🎉 ${currentUser.username}님이 ${targetNumber}을(를) ${attempts}번 만에 맞췄습니다!`);
+                    break;
+                }
+            } while (attempts < 10 && guess !== targetNumber);
+            
+            if (guess !== targetNumber) {
+                addSystemMessage(`😅 ${currentUser.username}님, 아쉽네요! 정답은 ${targetNumber}이었습니다.`);
+            }
+        }
+
+        function startMemoryGame() {
+            showGameModal(`
+                <h3>🃏 기억력 게임</h3>
+                <p>같은 이모지를 찾아보세요!</p>
+                <div id="memoryBoard" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 400px; margin: 20px auto;"></div>
+                <div id="memoryScore">점수: 0</div>
+            `);
+            
+            const emojis = ['🐶', '🐱', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯'];
+            const gameEmojis = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+            let flippedCards = [];
+            let matchedPairs = 0;
+            let score = 0;
+            
+            const board = document.getElementById('memoryBoard');
+            gameEmojis.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    width: 80px; height: 80px; background: #667eea; color: white;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 24px; border-radius: 8px; cursor: pointer;
+                    transition: all 0.3s;
+                `;
+                card.textContent = '?';
+                card.onclick = () => flipCard(card, emoji, index);
+                board.appendChild(card);
+            });
+            
+            function flipCard(card, emoji, index) {
+                if (card.classList.contains('flipped') || flippedCards.length === 2) return;
+                
+                card.classList.add('flipped');
+                card.textContent = emoji;
+                card.style.background = 'white';
+                card.style.color = '#333';
+                flippedCards.push({ card, emoji, index });
+                
+                if (flippedCards.length === 2) {
+                    setTimeout(() => {
+                        if (flippedCards[0].emoji === flippedCards[1].emoji) {
+                            matchedPairs++;
+                            score += 10;
+                            if (matchedPairs === emojis.length) {
+                                addSystemMessage(`🎉 ${currentUser.username}님이 기억력 게임을 완료했습니다! 점수: ${score}`);
+                            }
+                        } else {
+                            flippedCards.forEach(item => {
+                                item.card.classList.remove('flipped');
+                                item.card.textContent = '?';
+                                item.card.style.background = '#667eea';
+                                item.card.style.color = 'white';
+                            });
+                        }
+                        flippedCards = [];
+                        document.getElementById('memoryScore').textContent = `점수: ${score}`;
+                    }, 1000);
+                }
+            }
+        }
+
+        function startDrawingGame() {
+            const words = ['집', '나무', '자동차', '고양이', '강아지', '꽃', '태양', '달', '별', '물고기'];
+            const randomWord = words[Math.floor(Math.random() * words.length)];
+            
+            showGameModal(`
+                <h3>🎨 그림 맞추기</h3>
+                <p>단어: <strong>${randomWord}</strong></p>
+                <canvas id="drawingCanvas" width="400" height="300" style="border: 2px solid #667eea; border-radius: 8px; background: white;"></canvas>
+                <div style="margin: 20px 0;">
+                    <button class="play-btn" onclick="clearCanvas()">지우기</button>
+                    <button class="play-btn" onclick="saveDrawing()">완성!</button>
+                    <input type="color" id="colorPicker" value="#000000">
+                    <input type="range" id="brushSize" min="1" max="20" value="5">
+                </div>
+            `);
+            
+            const canvas = document.getElementById('drawingCanvas');
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            
+            function startDrawing(e) {
+                isDrawing = true;
+                draw(e);
+            }
+            
+            function draw(e) {
+                if (!isDrawing) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                ctx.lineWidth = document.getElementById('brushSize').value;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = document.getElementById('colorPicker').value;
+                
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            }
+            
+            function stopDrawing() {
+                if (!isDrawing) return;
+                isDrawing = false;
+                ctx.beginPath();
+            }
+            
+            window.clearCanvas = function() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            };
+            
+            window.saveDrawing = function() {
+                const dataURL = canvas.toDataURL();
+                addSystemMessage(`🎨 ${currentUser.username}님이 "${randomWord}" 그림을 완성했습니다!`);
+                
+                // 그림을 채팅에 이미지로 전송
+                const drawingMessage = {
+                    username: currentUser.username,
+                    message: dataURL,
+                    timestamp: new Date(),
+                    familyCode: currentUser.familyCode,
+                    type: 'image'
+                };
+                
+                messages.push(drawingMessage);
+                localStorage.setItem('familySiteMessages', JSON.stringify(messages));
+                displayMessage(drawingMessage);
+                
+                closeModal();
+            };
+        }
+
+        function startBingoGame() {
+            showGameModal(`
+                <h3>🎯 빙고 게임</h3>
+                <div id="bingoBoard" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; max-width: 300px; margin: 20px auto;"></div>
+                <div id="bingoInfo">빙고 줄 수: 0</div>
+                <button class="play-btn" onclick="resetBingo()">새 게임</button>
+            `);
+            
+            createBingoBoard();
+        }
+
+        function createBingoBoard() {
+            const board = document.getElementById('bingoBoard');
+            board.innerHTML = '';
+            
+            const numbers = Array.from({length: 25}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+            
+            numbers.forEach((num, index) => {
+                const cell = document.createElement('div');
+                cell.style.cssText = `
+                    width: 50px; height: 50px; background: #f8f9fa; border: 2px solid #667eea;
+                    display: flex; align-items: center; justify-content: center;
+                    font-weight: bold; cursor: pointer; transition: all 0.3s;
+                `;
+                cell.textContent = num;
+                cell.onclick = () => toggleBingoCell(cell);
+                board.appendChild(cell);
+            });
+        }
+
+        function toggleBingoCell(cell) {
+            if (cell.style.background === 'rgb(102, 126, 234)') {
+                cell.style.background = '#f8f9fa';
+                cell.style.color = '#333';
+            } else {
+                cell.style.background = '#667eea';
+                cell.style.color = 'white';
+            }
+            checkBingo();
+        }
+
+        function checkBingo() {
+            const cells = document.querySelectorAll('#bingoBoard > div');
+            const board = Array.from(cells).map(cell => cell.style.background === 'rgb(102, 126, 234)');
+            let bingoCount = 0;
+            
+            // 가로 체크
+            for (let i = 0; i < 5; i++) {
+                if (board.slice(i * 5, i * 5 + 5).every(cell => cell)) bingoCount++;
+            }
+            
+            // 세로 체크
+            for (let i = 0; i < 5; i++) {
+                if ([0, 1, 2, 3, 4].every(j => board[i + j * 5])) bingoCount++;
+            }
+            
+            // 대각선 체크
+            if ([0, 6, 12, 18, 24].every(i => board[i])) bingoCount++;
+            if ([4, 8, 12, 16, 20].every(i => board[i])) bingoCount++;
+            
+            document.getElementById('bingoInfo').textContent = `빙고 줄 수: ${bingoCount}`;
+            
+            if (bingoCount >= 5) {
+                addSystemMessage(`🎯 ${currentUser.username}님이 빙고를 완성했습니다! (${bingoCount}줄)`);
+            }
+        }
+
+        function resetBingo() {
+            createBingoBoard();
+            document.getElementById('bingoInfo').textContent = '빙고 줄 수: 0';
+        }
+
+        function startRouletteGame() {
+            const missions = [
+                '가족에게 사랑한다고 말하기 💕',
+                '재미있는 춤 추기 💃',
+                '좋아하는 노래 한 소절 부르기 🎵',
+                '가족 구성원 한 명 칭찬하기 👏',
+                '재미있는 이야기 하나 들려주기 📚',
+                '애교 부리기 😊',
+                '가족과 함께 셀카 찍기 📸',
+                '좋아하는 음식 소개하기 🍕',
+                '간단한 마술 보여주기 🎩',
+                '가족에게 감사 인사하기 🙏'
+            ];
+            
+            showGameModal(`
+                <h3>🎪 가족 룰렛</h3>
+                <div id="roulette" style="width: 200px; height: 200px; border: 5px solid #667eea; border-radius: 50%; margin: 20px auto; position: relative; background: conic-gradient(#ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd, #98d8c8, #f7dc6f, #bb8fce, #85c1e9);">
+                    <div id="roulettePointer" style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 20px solid #333;"></div>
+                    <div id="rouletteCenter" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">GO</div>
+                </div>
+                <button class="play-btn" onclick="spinRoulette()">룰렛 돌리기!</button>
+                <div id="missionResult" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; display: none;"></div>
+            `);
+            
+            window.spinRoulette = function() {
+                const roulette = document.getElementById('roulette');
+                const randomDegree = Math.floor(Math.random() * 360) + 1440; // 최소 4바퀴
+                
+                roulette.style.transition = 'transform 3s ease-out';
+                roulette.style.transform = `rotate(${randomDegree}deg)`;
+                
+                setTimeout(() => {
+                    const missionIndex = Math.floor(Math.random() * missions.length);
+                    const mission = missions[missionIndex];
+                    
+                    const result = document.getElementById('missionResult');
+                    result.innerHTML = `
+                        <h4>🎯 미션!</h4>
+                        <p>${mission}</p>
+                        <button class="play-btn" onclick="completeMission('${mission}')">미션 완료!</button>
+                    `;
+                    result.style.display = 'block';
+                }, 3000);
+            };
+            
+            window.completeMission = function(mission) {
+                addSystemMessage(`🎪 ${currentUser.username}님이 미션을 완료했습니다: ${mission}`);
+                closeModal();
+            };
+        }
+
+        // 모달 관련 함수
+        function showGameModal(content) {
+            const modal = document.getElementById('gameModal');
+            const gameContent = document.getElementById('gameContent');
+            gameContent.innerHTML = content;
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('gameModal');
+            modal.classList.remove('show');
+        }
+
+        // 페이지 로드 시 자동 로그인 확인
+        window.onload = function() {
+            const savedUser = localStorage.getItem('familySiteUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('main-container').classList.remove('hidden');
+                document.getElementById('welcomeMessage').textContent = `안녕하세요, ${currentUser.username}님!`;
+                
+                addOnlineUser(currentUser);
+                loadMessages();
+                loadPhotos();
+                initBoardGame();
+            }
+        };
+
+        // 페이지 종료 시 정리
+        window.onbeforeunload = function() {
+            if (currentUser) {
+                removeOnlineUser(currentUser);
+            }
+        };
+    </script>
 </body>
 </html>
